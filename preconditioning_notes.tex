@@ -1,0 +1,216 @@
+%% AMS-LaTeX Created with the Wolfram Language : www.wolfram.com
+
+\documentclass{article}
+\usepackage{amsmath, amssymb, graphics, setspace}
+
+\newcommand{\mathsym}[1]{{}}
+\newcommand{\unicode}[1]{{}}
+
+\begin{document}
+
+\title{Modifying QUBO Parameters to Improve Quantum Annealer Performance}
+\author{Michael L Rogers}
+\date{December 2, 2019}
+\maketitle
+
+Los Alamos National Laboratory, XCP-8
+
+Los Alamos National Laboratory, CCS-3
+
+Abstract
+
+
+
+We consider the possibility of improving the performance of a superconducting quantum annealer (QA) by modifying the input parameters given to the
+device. Here, we are focusing only on the problem of the loss of adiabatic evolution due to the occurance of very small spectral gaps { }during the
+annealing time period. To this end, we propose modifying the input parameters, which specify the Hamiltonian applied near the end of the annealing
+time, { }in a way that both: 1) Increses the average spectral gap over some range of final states with energies close to the ground state, i.e.,
+reduces the spectral density there , and; 2) Retains the same qubit ground state vector, or at least keeps it within the bottom 1$\%$. { }
+
+
+
+Whether or not this can be done in a way that significantly improves QA performance is undoubtedly problem dependent, asmany { }QUBO problems are
+NP-complete, and it is not expected that this can be solved on quantum annealers. { }However many difficult optimizatio problems with only polynomial
+complexity may sbe encoded QUBO problems and it may still be possible to demonstrate a quantum advantage with these problems,. By analyzing when
+and if this may be possible, we hope to better quantify and understand the capabilities and limitations of QA machines.
+
+
+
+We show how the user-input floating-point QUBO parameters constrain the the qubit vector states. This provides a simple relation which is useful
+for developing strategies to modfy the parameters to increase the spectral gap. { }From these considerations we present three different strategies
+for testing potentially increasing the spectral gap. { }Finally we test each of these strategies, in turn, applied to QUBO problems of varying compuatational
+difficulty and present our results.
+
+\section*{Motivation}
+
+\subsection*{The Spectral Gap and Spectral Density}
+
+Quantum annealing (QA) is a promising alternative paradigm for quantum computing, which has been shown to be, in theory, as powerful as more conventional
+gated quantum computers, and that is theoretically well suited for solving hard optimization problems. { }It is also much easier to construct quantum
+annealing with large numbers of superconducting qubits, and these qubits tend to be simpler and more fault tolerant than the superconducting gated
+qubits. { }However, the QA approach to quantum computing has yet to demonstrate any quantum advantage on solving any problem relative to classical
+optimizers. { }As commerical quantum annealers have become available in recent years, a number of difficulties have been discovered which are thought
+to limit the ultimate computational capability of these machines. { }However the ultimate limitations are not yet fully understood or quantified.
+
+
+One of most important limiting factors of QA machines, is existence of { }small gaps between neighboring energy levels encountered during the annealing
+time evolution. For quantum annelers this is particularly problematic tf there is a sufficiently small gap between the ground state energy and first
+excited state of the final state Hamiltonian. { }This causes the the time evolution to be non-adiabatic, resulting in dispersion of the state vector
+as it evolves toward the final ground state. When this happens, { }the qubit ground state vector { }will frequently mix with a large number of other
+qubit states nearby in enrergy, { }In many problems this will make it difficult or impossible to find the true ground state in a reasonable amount
+of time. This problem is unavoidable for quantum annealing with a large number of qubits, \(N\), as the number of final states increases in propottion
+to \(2^N\) while the energy range only increases in proportion to \(N\). { }Therefore, for arbitrary QA final states, the average spectral density
+goes as \(2^{-N}.\) { }So, for typical large problems, the spectral gap approaches zero exponentially.
+
+It is the objective of the { }present report to consider whether it is possible to obtain better QA performance by simply modying the QUBO parameters
+which are used to {``}program{''} the QA. { }We also present a simple relation which clearly shows how the input parameters constrain the total energy
+surface for the qubit state vectors. { }This will prove useful, in general, for analyzing and quantifying the capabilities and limitations of the
+QA approach to quantum computing. { }Since we are only considering the spectral gap problem here, we assume that the QA machine is evolving quantum
+mechanically during the annealing process, but that the ground state is not evolving adiabatically due to very closely spaced low energy states near
+the end of the annealing run. 
+
+\subsection*{Quantum Annealing and Adiabatic Evolution}
+
+The standard quantum annealing algorthm with superconducting qubits works by time evolving the applied Hamiltionian,starting with an initial Hamiltonian,
+\(H_0\), corresponding to an applied magnetic field paralell to the chip, which puts the { }qubits in a randomized and uncorrelated initial state,
+to the applied final Hamiltonian, \(H_1\), which is specified by the user in the programming interface. The system is then measured at some annealing
+time, \(\tau _a\) at which time the Hamiltonian approximates the time-independent \(H_1\). If the system has evolved entirely adiabatically from
+the initial ground state over the entire time \(\tau _{0 }\) to \(\tau _a\), it will be measured to be in the ground state of \(H_1\), or very nearly
+so. { }If it is not, and the annealing time were large enough, more annealing runs using the same QUBO parameters should eventually measure the correct
+the ground state, however this may take an exponentially long time for sufficiently hard problems..
+
+The time-dependent Hamiltonian during the annealing process is given by,
+
+\(\hat{H}(t) = (1-g(t) )\hat{H}_0 + g(t) \hat{H}_1\),
+
+where the function g(t) is a mononically increaseing functions of time.
+
+At t=0, { }the energy levels start out completely degenerate, but would evolve adiabatically to remain in the instantaneous ground state during the
+annealing time, if they energy levels near the instatnaneous ground state became sufifciently well separated well before \(\tau _a\), and remaind
+so. { }But, if { }energy levels near the instantaneous ground state become too close together during this time, they ground state will mix with these
+levels, destroying the adiabatic evolution of the ground state. However, since the evolution from \(H_0\) to \(H_1\)is monotonic, we would expect
+that after the initial separation the energy levels near the ground state would not get too small unless the energy levels are already too small
+for \(H_1\). { }So, we expect that by increasing the spectral gap for \(H_1\)that we can improve the adiabatic behavior, create less mixing with
+neighboring states, and therefore have a higher probability of measuring the ground state.
+
+\section*{Modifying QUBO Parameters to Increase the Spectral Gap}
+
+\subsection*{How the QUBO Parameters Constrain the Hamiltonian Spectrum}
+
+The applied final Hamiltonan,, \(H_1\), for { }N qubits is given by,
+
+\(\hat{H} =\sum _{i=1}^N \sum _{j\neq i} \hat{q_i}{}^TB_{\text{ij}} \hat{q_i} +\sum _{i=1}^N \hat{q_i}{}^T \hat{a}_i\)
+
+where , B is the symmetric form (in our convenction) of the off-diagonal QUBO {``}B{''} matrix of parameters, and $\mathit{a}$ is the QUBO {``}a{''}
+vector. The operators \(\hat{q_i}\) are the individual qubit operators on n qubit product states, \(|\overset{\rightharpoonup }{q}_i >_\) such that
+the eigenvalues of individual qubit states satsify,
+
+\(\hat{q}_i\text{  }| q_{i }> = q_{i }| q_{i }>\),
+
+where \(q_{i }\in \{0,1\}\) .
+
+The equation in terms of the eigenvalues is equivalent to the follwoing objective function for an arbiatrary real vector, \(\overset{\rightharpoonup
+}{x}\), subject to constraint that\(x_{i }=q_i\in \{0,1\}\).
+
+\(H \approx  \overset{\rightharpoonup }{x}^TB \overset{\rightharpoonup }{x} + \overset{\rightharpoonup }{x}^T \overset{\rightharpoonup }{a},\)
+
+We are employing a notation introduced by { }Dirac in his work on constrained forms of dynamic in which the sign{''} $\approx ${''} is used to mean
+{``}equal when the constraint is applied{''}. In terms of this notation, we may then also write this as,.
+
+\(H \approx \text{  }\overset{\rightharpoonup }{x}^TQ\text{  }\overset{\rightharpoonup }{x} ,\)
+
+\(\text{where},\)
+
+\(\text{  }Q \equiv  B+\text{  }A\)
+
+and cp his the diagonal matrix with the elements of $\mathit{a}$ on the diagonal.
+
+If the system is measure in an energy eigenstate, \(E_i\) of \(\hat{H}\), { }we may write the energy in terms of the eigenvalue array \(\hat{q}_i\)
+as,
+
+\(E_i = \overset{\rightharpoonup }{q}_i{}^T\cdot Q\cdot  \overset{\rightharpoonup }{q}_i .\)
+
+To understand how the QUBO parameters constrain the quantum Hamiltonian spectrum, consider the (classical) spectrum of the matrix, Q.. { }Assuming
+the paramers $\mathcal{B}$ and $\mathit{a}$ are given, for a particular problem, first form Q and determine its eigenvalues and eigenvectors. { }This
+will be always possible because Q is a real, symmetric matrix, and so it it is Hermitian. Also, the operations are floating-point matrix operations,
+which are computable in no more than \(o\left(N^3\right)\) steps. { }Write $\mathit{k}$-th the eigenvectorsof Q as \(\hat{v}_k\). Then we have
+
+\(\text{  }Q\hat{v}_k= \lambda _k\hat{v}_k.\)
+
+Since the \(\hat{v}_k\) form a complete orthogonal basis in the space \(\mathbb{R}^N\)(where $\mathcal{N}$ is the number of qubits). we may expand
+any vector in this space in this basis, i.e.,
+
+\(\overset{\rightharpoonup }{x} = \sum _{k=1}^N  \left(\hat{v}_k\cdot \overset{\rightharpoonup }{x}\right) \hat{v}_k.\)
+
+In particular, we may also do this for the vectors of qubit eigenvalues, since they are also real-valued vectors in this space, although they are
+constrained to have values of 0 or 1. Thus, we may write,
+
+\(\overset{\rightharpoonup }{q}_i = \sum _{k=1}^N  \left(\hat{v}_k\cdot \overset{\rightharpoonup }{q}_i\right) \hat{v}_k\)
+
+But, since the eigenvectors \(\hat{v}_k\) are orthonormal, we can substitude this into the energy equation to find,
+
+\(E_i= \sum _{k=1}^N  \left\left| \hat{v}_k\cdot \overset{\rightharpoonup }{q}_i\right\right| {}^2\lambda _k.\)
+
+From this we see that we may also express the energy of an eigenvalue of the Hamiltonian on the space of qubits as a sum of contributions from each
+of the eigenvalues of $\mathcal{Q}$, weighted by the the inner product, of \(\hat{v}_k\) and \(\overset{\rightharpoonup }{q}_i\) squared. We may
+not obtain any energy eigenstate\(\overset{\rightharpoonup }{q}_i\) this way, bu this relatiot shows the QUBO parameter constrain the energy spectrum,
+given the eigenstate. { }With this expression we may also express the gap, \(\Delta _i\),between any QUBO energy and the ground state energy takes
+the form,
+
+\(\Delta _{\text{i0}} \equiv  E_i-E_0= \sum _{k=1}^N  \left(\left\left| \hat{v}_k\cdot \overset{\rightharpoonup }{q}_i\right\right| {}^2-\left\left|
+\hat{v}_k\cdot \overset{\rightharpoonup }{q}_0\right\right| {}^2\right)\text{  }\lambda _k\)
+
+\(\text{                                     }=\sum _{k=1}^N \left( \hat{v}_k\cdot \left(\overset{\rightharpoonup }{q}_i+\overset{\rightharpoonup
+}{ q}_0 \right)\right) \left( \hat{v}_k\cdot \left(\overset{\rightharpoonup }{q}_i-\overset{\rightharpoonup }{ q}_0 \right)\right)\text{   }\lambda
+_k\)
+
+This equation shows that each energy gap is determined by both the spectrum of $\mathcal{Q}$ and the the square of the difference between the inner
+products of \(\overset{\rightharpoonup }{q}_i\) and \(\overset{\rightharpoonup }{q}_0\) with each \(\hat{v}_k\). So we can see that there are two
+natural but opposite approaches for modifying $\mathcal{Q}$ to change the spectral gap. We may keep the eigenvevtors constant, while changing the
+eigenvalues, or we may keep the eigenvalues constant while changing the eigenvectors. { } There is also a third way, which involves introducing small
+perturbations to the Q matrix via the vector of weights. We will examine how these methods to see how it may be possible to increase the spectral
+gap in the following sections.
+
+\subsection*{Methods to Decrease the Spectral Density}
+
+The Spectral Scaling Method
+
+This idea for this method is to change $\mathcal{Q}$ to some new $\mathcal{Q}${'} so as to keep the same eigenvectors \(\hat{v}_k\) but change some
+or all of the eigenvalues, \(\lambda _k.\) This can easily be accomplished by using the \(\hat{v}_k\) to construct projection operators, which, when
+multiplied by a new eigenvalue { }\(\lambda '_k\), and added togeher yields a new matrix, $\mathcal{Q}$ { }, with the that but with the same eigenvectors
+and overlaps with qubit states. { } Tochange every eigenvalue to \(\lambda \to \lambda _k'\), { }we would simply define, { } { } { } { } 
+
+$\mathcal{Q}$' = { }\(\sum _{k=1}^N \lambda '_k \hat{v\cdot } \hat{v}_k{}^T\).
+
+The result of this transformation would just changes the spectrum to something with a lower spectral density, however the corresponding eigenvectors
+of $\mathcal{Q}${'} will be unchanged. This approach will change the spectral gap only by changing the eignvalues.
+
+One very effective approach has been to scale the eigenvalues matrix by adding a contribution proportional to each eigenvalue, so that a quadratic
+spreading occurs, which preferntially weights those eigenvalues with higher absoltue values. Other kinds of scaling or scaling plus translation operations
+on the original set of eigenvalues have been tested with some degree of success.
+
+The Similary Tranform Method
+
+In this approach, we change the part of the spectral gap equation in brackets, i.e., we shift the spectral gap by changing the {``}overlaps{''} or
+dot products between { }\(\hat{v}_k\) and \(\overset{\rightharpoonup }{q}_i\), while keeping the eigenvalues invariant. { }This is accomplished by
+simply applying a similarity transformation to $\mathcal{Q}$. { }We define,
+
+$\mathcal{Q}${'} = \(R^{-1}\mathcal{Q} R\),
+
+where, R is a unitary matrix, essentially a rotation matrix in \(\mathbb{R}^N\). This will keep the spectrum invariant (i.e., the eigenvalues), but
+it will effectively rotate the eigenvectors by R. { }This will change the overlaps in the spectral gap equation, which can change the spectral gap.
+
+
+This is being investigated, but currently we do not know of a systematic approach to chose the rotations.
+
+The Perturbative Method
+
+This approach involves adding a diagonal real matrix (which is also Hermitian) { }to $\mathcal{Q}$ { }which is a {``}small{''} perturbation in the
+sense that its matrix norm is small relative to the norm of $\mathcal{Q}$. { }Then, both the eigenvalues and eigenvectors of $\mathcal{Q}${`} will
+be changed, however, none of the eigenvalues will change in their order, and the eigenvalues will be constrained to satisfy the Weyl Inequalities.
+{ }
+
+This method has been observed to yield better spectral densities by trial-and-error, but no systematic approach has been found to accomplish this
+yet.
+
+\end{document}
